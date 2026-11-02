@@ -199,7 +199,18 @@ def _emit_tasks(profile: str) -> str:
     return "".join(blocks)
 
 
-def _export_block(dataset_id: str) -> str:
+def _export_block(dataset_id: str = None, netapp_volume_id: str = None) -> str:
+    if netapp_volume_id:
+        return f"""
+    from flytekitplugins.domino.artifact import run_launch_export_artifacts_task, ExportArtifactToNetAppVolumesSpec
+    run_launch_export_artifacts_task(
+        spec_list=[
+            ExportArtifactToNetAppVolumesSpec(artifact=DataArtifact, netapp_volume_id="{netapp_volume_id}"),
+            ExportArtifactToNetAppVolumesSpec(artifact=StudyFilesArtifact, netapp_volume_id="{netapp_volume_id}"),
+        ],
+        use_project_defaults_for_omitted=True,
+    )
+"""
     return f"""
     from flytekitplugins.domino.artifact import run_launch_export_artifacts_task, ExportArtifactToDatasetsSpec
     run_launch_export_artifacts_task(
@@ -212,7 +223,13 @@ def _export_block(dataset_id: str) -> str:
 """
 
 
-def render(profile: str, dataset_id: str, include_export: bool, sas_environment: str = SAS_ENVIRONMENT) -> str:
+def render(
+    profile: str,
+    dataset_id: str,
+    include_export: bool,
+    sas_environment: str = SAS_ENVIRONMENT,
+    netapp_volume_id: str = None,
+) -> str:
     file_count, total_bytes = profile_totals(profile)
     header = textwrap.dedent(
         f"""\
@@ -238,7 +255,11 @@ def render(profile: str, dataset_id: str, include_export: bool, sas_environment:
         + _adam_tasks()
         + _tfl_tasks()
         + _emit_tasks(profile)
-        + (_export_block(dataset_id) if include_export else "\n    return\n")
+        + (
+            _export_block(dataset_id=dataset_id, netapp_volume_id=netapp_volume_id)
+            if include_export
+            else "\n    return\n"
+        )
     )
     if include_export:
         body += "\n    return\n"
@@ -248,14 +269,24 @@ def render(profile: str, dataset_id: str, include_export: bool, sas_environment:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--profile", required=True, choices=("reduced", "full"))
-    parser.add_argument("--dataset-id", required=True)
+    target = parser.add_mutually_exclusive_group()
+    target.add_argument("--dataset-id", help="Export target: a Domino Dataset id.")
+    target.add_argument("--netapp-volume-id", help="Export target: a NetApp Volume id.")
     parser.add_argument("--out", default=OUTPUT_NAME)
     parser.add_argument("--skip-export", action="store_true")
     parser.add_argument("--sas-environment", default=SAS_ENVIRONMENT)
     args = parser.parse_args()
+    if not args.skip_export and not args.dataset_id and not args.netapp_volume_id:
+        parser.error("one of --dataset-id or --netapp-volume-id is required unless --skip-export is set")
     out_path = pathlib.Path(args.out)
     out_path.write_text(
-        render(args.profile, args.dataset_id, include_export=not args.skip_export, sas_environment=args.sas_environment)
+        render(
+            args.profile,
+            args.dataset_id,
+            include_export=not args.skip_export,
+            sas_environment=args.sas_environment,
+            netapp_volume_id=args.netapp_volume_id,
+        )
     )
     print(f"Wrote {out_path}")
 
