@@ -212,7 +212,7 @@ def _export_block(dataset_id: str) -> str:
 """
 
 
-def render(profile: str, dataset_id: str, include_export: bool) -> str:
+def render(profile: str, dataset_id: str, include_export: bool, sas_environment: str = SAS_ENVIRONMENT) -> str:
     file_count, total_bytes = profile_totals(profile)
     header = textwrap.dedent(
         f"""\
@@ -224,7 +224,7 @@ def render(profile: str, dataset_id: str, include_export: bool) -> str:
         from flytekitplugins.domino.helpers import Input, Output, run_domino_job_task
         from flytekitplugins.domino.artifact import Artifact, DATA, REPORT
 
-        SAS_ENVIRONMENT = "{SAS_ENVIRONMENT}"
+        SAS_ENVIRONMENT = {sas_environment!r}
         DataArtifact = Artifact("ADaM Datasets", DATA)
         ReportArtifact = Artifact("TFL Reports", REPORT)
         StudyFilesArtifact = Artifact("Study Files", DATA)
@@ -251,9 +251,12 @@ def main() -> None:
     parser.add_argument("--dataset-id", required=True)
     parser.add_argument("--out", default=OUTPUT_NAME)
     parser.add_argument("--skip-export", action="store_true")
+    parser.add_argument("--sas-environment", default=SAS_ENVIRONMENT)
     args = parser.parse_args()
     out_path = pathlib.Path(args.out)
-    out_path.write_text(render(args.profile, args.dataset_id, include_export=not args.skip_export))
+    out_path.write_text(
+        render(args.profile, args.dataset_id, include_export=not args.skip_export, sas_environment=args.sas_environment)
+    )
     print(f"Wrote {out_path}")
 
 
