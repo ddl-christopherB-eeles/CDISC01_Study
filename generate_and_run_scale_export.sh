@@ -45,6 +45,7 @@ ROOT="${DOMINO_WORKING_DIR:-/mnt/code}"
 cd "$ROOT"
 
 python "$ROOT/scripts/seed_sdtm_placeholders.py" "$DATASET_DIR"
+python "$ROOT/scripts/snapshot_sdtm_dataset.py" "$DATASET_ID"
 
 GEN_ARGS=(--profile "$PROFILE" --dataset-id "$DATASET_ID" --sas-environment "$SAS_ENVIRONMENT" --out "$ROOT/generate_artifacts_scale_run.py")
 if [[ "$SKIP_EXPORT" == "--skip-export" ]]; then

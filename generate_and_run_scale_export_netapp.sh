@@ -8,8 +8,8 @@
 ## Usage:
 ##   bash generate_and_run_scale_export_netapp.sh <dataset_url> <netapp_volume_id> <project_name> <profile> [--skip-export] [--sas-environment <name>]
 ##
-## <dataset_url> still seeds the sdtm_dataset_snapshot input (the default
-## project dataset) -- only the export target changes to the NetApp Volume.
+## <dataset_url> still seeds and snapshots the sdtm_dataset_snapshot input (the
+## default project dataset) -- only the export target changes to the NetApp Volume.
 ## <netapp_volume_id> is the volume's remotefs id (not a URL), so the Cucu
 ## caller must resolve it, e.g. via the "I save the volume ID for volume ...
 ## to the variable ..." step.
@@ -40,6 +40,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+DATASET_ID="$(basename "$DATASET_URL")"
 # Git-based projects mount the project dataset at /mnt/data; DFS projects at /domino/datasets/local.
 if [[ -d "/mnt/data/${PROJECT_NAME}" ]]; then
   DATASET_DIR="/mnt/data/${PROJECT_NAME}"
@@ -51,6 +52,7 @@ ROOT="${DOMINO_WORKING_DIR:-/mnt/code}"
 cd "$ROOT"
 
 python "$ROOT/scripts/seed_sdtm_placeholders.py" "$DATASET_DIR"
+python "$ROOT/scripts/snapshot_sdtm_dataset.py" "$DATASET_ID"
 
 GEN_ARGS=(--profile "$PROFILE" --netapp-volume-id "$NETAPP_VOLUME_ID" --sas-environment "$SAS_ENVIRONMENT" --out "$ROOT/generate_artifacts_scale_run.py")
 if [[ "$SKIP_EXPORT" == "--skip-export" ]]; then
