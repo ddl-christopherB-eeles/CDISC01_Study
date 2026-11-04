@@ -1,5 +1,5 @@
-* Scale ADSL for DOM-79203. Generates a small valid SAS dataset so downstream
-* ADaM/TFL tasks have real sas7bdat inputs without depending on CDISC01_SDTM.
+/* Scale ADSL for DOM-79203. Generates a small valid SAS dataset so downstream
+   ADaM/TFL tasks have real sas7bdat inputs without depending on CDISC01_SDTM. */
 libname outputs "/workflow/outputs";
 
 data outputs.adsl;

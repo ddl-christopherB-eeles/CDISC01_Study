@@ -1,4 +1,4 @@
-* Scale T_POP for DOM-79203. Real SAS PDF from ADSL; no TFL metadata volume required.
+/* Scale T_POP for DOM-79203. Real SAS PDF from ADSL; no TFL metadata volume required. */
 libname inputs "/workflow/inputs";
 x "mv /workflow/inputs/adsl /workflow/inputs/adsl.sas7bdat";
 

@@ -1,4 +1,4 @@
-* Scale T_VSCAT for DOM-79203.
+/* Scale T_VSCAT for DOM-79203. */
 libname inputs "/workflow/inputs";
 x "mv /workflow/inputs/advs /workflow/inputs/advs.sas7bdat";
 
