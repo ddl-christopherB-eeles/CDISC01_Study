@@ -1,10 +1,15 @@
-/* Scale ADMH for DOM-79203. */
+/* ADMH: SDTM MH for ADSL subjects. */
+libname mh xport "/workflow/inputs/mh";
 libname inputs "/workflow/inputs";
 libname outputs "/workflow/outputs";
 x "mv /workflow/inputs/adsl /workflow/inputs/adsl.sas7bdat";
 
+proc sort data=mh.mh out=mh;
+    by USUBJID;
+run;
+
 data outputs.admh;
-    set inputs.adsl;
-    length MHTERM $32;
-    MHTERM = "HYPERTENSION";
+    merge inputs.adsl(in=in_adsl) mh(in=in_mh);
+    by USUBJID;
+    if in_adsl and in_mh;
 run;

@@ -1,11 +1,19 @@
-/* Scale ADVS for DOM-79203. */
+/* ADVS: SDTM VS for ADSL subjects, one analysis value per test and visit. */
+libname vs xport "/workflow/inputs/vs";
 libname inputs "/workflow/inputs";
 libname outputs "/workflow/outputs";
 x "mv /workflow/inputs/adsl /workflow/inputs/adsl.sas7bdat";
 
+proc sort data=vs.vs out=vs;
+    by USUBJID;
+run;
+
 data outputs.advs;
-    set inputs.adsl;
-    length PARAM $32;
-    PARAM = "Systolic Blood Pressure";
-    AVAL = 120;
+    merge inputs.adsl(in=in_adsl) vs(in=in_vs);
+    by USUBJID;
+    if in_adsl and in_vs;
+    length PARAMCD $8;
+    PARAMCD = VSTESTCD;
+    AVAL = VSSTRESN;
+    AVISITN = VISITNUM;
 run;

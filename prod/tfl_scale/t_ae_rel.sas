@@ -1,10 +1,17 @@
-/* Scale T_AE_REL for DOM-79203. */
+/* Adverse events by relationship to study drug and planned treatment, from ADAE. */
 libname inputs "/workflow/inputs";
-x "mv /workflow/inputs/adsl /workflow/inputs/adsl.sas7bdat";
 x "mv /workflow/inputs/adae /workflow/inputs/adae.sas7bdat";
 
-ods pdf file="/workflow/outputs/t_ae_rel";
-title "Scale T_AE_REL";
-proc print data=inputs.adae;
+ods pdf file="/workflow/outputs/t_ae_rel.pdf";
+
+title "Adverse Events by Relationship to Study Drug";
+proc freq data=inputs.adae;
+    tables AEREL * TRT01P / nocol nopercent;
 run;
+
+title "Adverse Events by Body System";
+proc freq data=inputs.adae order=freq;
+    tables AEBODSYS * TRT01P / nocol nopercent;
+run;
+
 ods pdf close;

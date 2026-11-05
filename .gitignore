@@ -5,6 +5,4 @@ dhparams.pem
 /utils/__pycache__
 /flows/__pycache__
 /Trash*
-generate_artifacts_scale_run.py
-/flows/__pycache__
 /scripts/__pycache__
