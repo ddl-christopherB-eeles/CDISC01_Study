@@ -34,7 +34,7 @@ PROFILES = {
 
 FILES_PER_TASK = 50
 BYTES_PER_TASK = 8 * GIB
-HIGHMEM_TASK_BYTES = GIB
+LARGE_TASK_BYTES = GIB  # batches this size or larger run on the launcher's --large-task-hardware-tier-id
 
 
 @dataclass(frozen=True)

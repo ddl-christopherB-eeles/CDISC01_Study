@@ -24,10 +24,11 @@ from flytekitplugins.domino.artifact import (
 )
 from flytekitplugins.domino.helpers import Input, Output, run_domino_job_task
 
-from flows.scale_profiles import GIB, HIGHMEM_TASK_BYTES, profile_batches
+from flows.scale_profiles import GIB, LARGE_TASK_BYTES, profile_batches
 
 SCALE_PROFILE = os.environ.get("SCALE_PROFILE", "regular")
 SAS_ENVIRONMENT = os.environ.get("SAS_ENVIRONMENT", "SAS Environment")
+LARGE_TASK_HARDWARE_TIER_ID = os.environ.get("LARGE_TASK_HARDWARE_TIER_ID", "small-k8s")
 EXPORT_DATASET_ID = os.environ.get("EXPORT_DATASET_ID")
 EXPORT_NETAPP_VOLUME_ID = os.environ.get("EXPORT_NETAPP_VOLUME_ID")
 
@@ -121,7 +122,7 @@ def export_scale_study(sdtm_dataset_snapshot: str):
                 Output(name=f.output_name, type=StudyFilesArtifact.File(name=f.artifact_filename)) for f in batch
             ],
             volume_size_gib=max(10, math.ceil(batch_bytes / GIB) + 4),
-            hardware_tier_id="small-k8s" if batch_bytes >= HIGHMEM_TASK_BYTES else None,
+            hardware_tier_id=LARGE_TASK_HARDWARE_TIER_ID if batch_bytes >= LARGE_TASK_BYTES else None,
             use_project_defaults_for_omitted=True,
             use_latest_git_ref=True,
             cache=False,
